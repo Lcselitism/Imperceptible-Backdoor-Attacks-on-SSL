@@ -1,0 +1,2 @@
+# Preserve exact original file bytes; disable automatic line-ending conversion.
+* -text

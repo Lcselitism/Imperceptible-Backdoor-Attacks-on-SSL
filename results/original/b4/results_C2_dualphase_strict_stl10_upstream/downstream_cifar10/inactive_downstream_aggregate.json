@@ -1,0 +1,454 @@
+{
+  "experiment": "ca3_inactive_cross_dataset_transfer_aggregate",
+  "protocol": {
+    "upstream_dataset": "STL10",
+    "downstream_dataset": "CIFAR10",
+    "dataset": "CIFAR10",
+    "image_size": 32,
+    "target_label": 0,
+    "target_class_name": "airplane",
+    "feature_source": "model.f",
+    "projection_head_used": false,
+    "feature_l2_normalized": true,
+    "trigger_insertion_range": "[0, 1]",
+    "normalization_order": "downstream image -> resize to 32x32 if needed -> optional trigger -> STL10 encoder normalization",
+    "message_pattern": "alternating",
+    "message_length": 16,
+    "maximum_residual": 0.03137254901960784,
+    "asr_excludes_original_target_class": true,
+    "adjusted_asr_definition": "max(0, ASR - baseline target rate)",
+    "classifier_architecture": "512 -> 512 -> 256 -> 10",
+    "classifier_selection": "best fixed-split downstream validation accuracy per repetition",
+    "global_experiment_seed": 42,
+    "num_repeats": 5,
+    "repeat_seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "data_split_seed": 53,
+    "pair_order_invariant_seed_rule": "pair classifier seeds depend on global seed, repetition index and repeat seed; pair name and command position are excluded",
+    "pair_classifier_fairness": "all pairs share initial weights, DataLoader order and dropout RNG within each repetition when architecture dimensions match"
+  },
+  "data_counts": {
+    "classifier_fit": 45000,
+    "classifier_validation": 5000,
+    "test": 10000,
+    "non_target_test": 9000,
+    "target_references": 1000
+  },
+  "clean_baseline": {
+    "clean_simclr_checkpoint": ".\\results_simclr_stl10\\simclr_stl10_ep1000.pth",
+    "checkpoint_extra": {
+      "stage": "clean_simclr_pretraining",
+      "upstream_dataset": "stl10",
+      "encoder_input_size": 32,
+      "normalization": {
+        "mean": [
+          0.4467,
+          0.4398,
+          0.4066
+        ],
+        "std": [
+          0.2603,
+          0.2566,
+          0.2713
+        ]
+      },
+      "arch": "resnet18",
+      "projection_dim": 128,
+      "temperature": 0.5,
+      "optimizer": "Adam",
+      "lr": 0.001,
+      "batch_size": 256,
+      "seed": 100,
+      "stl10_pretraining_split": "train+unlabeled"
+    }
+  },
+  "clean_baseline_aggregate": {
+    "ca_percent": {
+      "mean": 86.95599999999999,
+      "std_sample": 0.17812916661793488,
+      "minimum": 86.71,
+      "maximum": 87.21,
+      "per_seed": [
+        {
+          "repetition": 1,
+          "seed": 42,
+          "value": 86.98
+        },
+        {
+          "repetition": 2,
+          "seed": 43,
+          "value": 86.92
+        },
+        {
+          "repetition": 3,
+          "seed": 44,
+          "value": 87.21
+        },
+        {
+          "repetition": 4,
+          "seed": 45,
+          "value": 86.96000000000001
+        },
+        {
+          "repetition": 5,
+          "seed": 46,
+          "value": 86.71
+        }
+      ]
+    },
+    "clean_non_target_target_rate_percent": {
+      "mean": 1.3422222222222222,
+      "std_sample": 0.030832082056692422,
+      "minimum": 1.3111111111111111,
+      "maximum": 1.3888888888888888,
+      "per_seed": [
+        {
+          "repetition": 1,
+          "seed": 42,
+          "value": 1.3888888888888888
+        },
+        {
+          "repetition": 2,
+          "seed": 43,
+          "value": 1.3333333333333335
+        },
+        {
+          "repetition": 3,
+          "seed": 44,
+          "value": 1.3555555555555554
+        },
+        {
+          "repetition": 4,
+          "seed": 45,
+          "value": 1.3111111111111111
+        },
+        {
+          "repetition": 5,
+          "seed": 46,
+          "value": 1.3222222222222222
+        }
+      ]
+    }
+  },
+  "pairs": {
+    "c2_dualphase_strict_stl10_best": {
+      "pair_name": "c2_dualphase_strict_stl10_best",
+      "encoder_checkpoint": ".\\results_C2_dualphase_strict_stl10_upstream\\checkpoints\\backdoored_simclr_encoder_alternating_best.pth",
+      "trigger_checkpoint": ".\\results_C2_dualphase_strict_stl10_upstream\\checkpoints\\stegastamp_inactive_alternating_best.pth",
+      "pair_metadata": {
+        "verified": true,
+        "encoder_stage": "inactive_alternating_c2_dualphase_encoder_export",
+        "trigger_stage": "inactive_alternating_c2_dualphase_trigger_export",
+        "encoder_epoch": 20,
+        "trigger_epoch": 20,
+        "saved_clean_feature_similarity": 0.9944643821716309,
+        "saved_reference_feature_similarity": 0.9912620253562927,
+        "upstream_dataset": "stl10",
+        "warnings": []
+      },
+      "trigger_config": {
+        "message_length": 16,
+        "image_size": 32,
+        "message_map_size": 8,
+        "message_channels": 8,
+        "base_channels": 32,
+        "max_residual": 0.03137254901960784,
+        "use_spatial_transformer": true,
+        "use_corruption": true
+      },
+      "trigger_quality": {
+        "psnr_db": 36.791662258572046,
+        "ssim_index": 0.9848911739455329,
+        "mean_abs_residual": 0.009534637124450119,
+        "mean_abs_residual_255": 2.4313324667347804,
+        "max_abs_residual": 0.03136742115020752,
+        "max_abs_residual_255": 7.9986923933029175,
+        "residual_saturation_ratio": 0.06682096354166667,
+        "residual_bound_violation_ratio": 0.0,
+        "message_bit_accuracy": 0.9987986111111111,
+        "message_accuracy": 0.9893333333333333
+      },
+      "feature_cosine_diagnostics": {
+        "clean_feature_similarity_pair_vs_clean": 0.9901708960533142,
+        "reference_feature_similarity_pair_vs_clean": 0.9916936755180359,
+        "pair_triggered_to_pair_target_centroid_cosine": 0.9105860590934753,
+        "pair_triggered_to_clean_target_centroid_cosine": 0.8879238367080688,
+        "pair_clean_non_target_to_pair_target_centroid_cosine": 0.48573383688926697,
+        "clean_triggered_to_clean_target_centroid_cosine": 0.44683071970939636,
+        "pair_triggered_vs_pair_clean_same_image_cosine": 0.4174390733242035
+      },
+      "metrics": {
+        "ca_percent": {
+          "mean": 86.95599999999999,
+          "std_sample": 0.17812916661793488,
+          "minimum": 86.71,
+          "maximum": 87.21,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 86.98
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 86.92
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 87.21
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 86.96000000000001
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 86.71
+            }
+          ]
+        },
+        "ba_percent": {
+          "mean": 86.628,
+          "std_sample": 0.10109401564880137,
+          "minimum": 86.50999999999999,
+          "maximum": 86.72999999999999,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 86.53
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 86.50999999999999
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 86.7
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 86.72999999999999
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 86.67
+            }
+          ]
+        },
+        "ca_to_ba_drop_pp": {
+          "mean": 0.3280000000000016,
+          "std_sample": 0.19188538245525769,
+          "minimum": 0.039999999999995595,
+          "maximum": 0.5099999999999993,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 0.45000000000000595
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 0.40999999999999925
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 0.5099999999999993
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 0.23000000000000798
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 0.039999999999995595
+            }
+          ]
+        },
+        "baseline_target_rate_percent": {
+          "mean": 1.3844444444444446,
+          "std_sample": 0.11536308757704365,
+          "minimum": 1.2666666666666666,
+          "maximum": 1.5555555555555556,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 1.5555555555555556
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 1.4000000000000001
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 1.288888888888889
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 1.2666666666666666
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 1.411111111111111
+            }
+          ]
+        },
+        "asr_percent": {
+          "mean": 94.45111111111112,
+          "std_sample": 1.3956634777803236,
+          "minimum": 93.28888888888889,
+          "maximum": 96.21111111111111,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 95.71111111111111
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 96.21111111111111
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 93.28888888888889
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 93.4
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 93.64444444444445
+            }
+          ]
+        },
+        "adjusted_asr_percent": {
+          "mean": 93.06666666666668,
+          "std_sample": 1.316443956785868,
+          "minimum": 92.0,
+          "maximum": 94.81111111111112,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 94.15555555555557
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 94.81111111111112
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 92.0
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 92.13333333333334
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 92.23333333333333
+            }
+          ]
+        },
+        "sanity_asr_percent": {
+          "mean": 1.4266666666666665,
+          "std_sample": 0.06694386813952036,
+          "minimum": 1.3555555555555554,
+          "maximum": 1.5,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 1.4555555555555555
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 1.3555555555555554
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 1.5
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 1.3555555555555554
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 1.4666666666666666
+            }
+          ]
+        }
+      }
+    }
+  },
+  "decision": {
+    "thresholds": {
+      "maximum_mean_ca_to_ba_drop_percentage_points": 5.0,
+      "minimum_mean_raw_asr_percent": 90.0,
+      "minimum_mean_adjusted_asr_percent": 90.0
+    },
+    "pair_checks": {
+      "c2_dualphase_strict_stl10_best": {
+        "mean_ba_drop_within_limit": true,
+        "mean_raw_asr_meets_target": true,
+        "mean_adjusted_asr_meets_target": true,
+        "meets_all_mean_thresholds": true
+      }
+    },
+    "ranking": [
+      "c2_dualphase_strict_stl10_best"
+    ],
+    "provisional_best_pair": "c2_dualphase_strict_stl10_best",
+    "genuinely_better_pair": "c2_dualphase_strict_stl10_best",
+    "comparison_status": "only one pair passed the mean BA-drop limit",
+    "margin_details": null,
+    "pairs_meeting_all_mean_thresholds": [
+      "c2_dualphase_strict_stl10_best"
+    ],
+    "selection_rule": "First require mean CA-to-BA drop within the configured limit. Rank surviving pairs by mean adjusted ASR, then lower adjusted-ASR sample standard deviation, then mean BA and mean raw ASR. Call the top pair genuinely better only when its mean adjusted-ASR lead exceeds the larger of the top two sample standard deviations. This is a practical stability heuristic, not a formal significance test.",
+    "recommendation": "A utility-safe pair is seed-stably strongest and meets the configured reference ASR thresholds. Record the transfer result and proceed to defense evaluation."
+  },
+  "per_seed_json_files": [
+    "results_C2_dualphase_strict_stl10_upstream\\downstream_cifar10\\per_seed\\repeat_01_seed_42.json",
+    "results_C2_dualphase_strict_stl10_upstream\\downstream_cifar10\\per_seed\\repeat_02_seed_43.json",
+    "results_C2_dualphase_strict_stl10_upstream\\downstream_cifar10\\per_seed\\repeat_03_seed_44.json",
+    "results_C2_dualphase_strict_stl10_upstream\\downstream_cifar10\\per_seed\\repeat_04_seed_45.json",
+    "results_C2_dualphase_strict_stl10_upstream\\downstream_cifar10\\per_seed\\repeat_05_seed_46.json"
+  ]
+}

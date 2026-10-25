@@ -1,0 +1,20 @@
+{
+    "setting": "tsne_trigger_vs_ssl_aug",
+    "dataset": "CIFAR10",
+    "target_label": 0,
+    "non_target_only": false,
+    "num_samples_per_group": 1000,
+    "total_points": 2000,
+    "ssl_aug_strength": "simclr",
+    "message_length": 30,
+    "max_residual": 0.125,
+    "clean_encoder": "../code/results/simclr_cifar10_ep1000.pth",
+    "stegastamp_checkpoint": "./results_stegastamp_learned/stegastamp_like_plain_issba.pth",
+    "figure_path": "./figures/tsne_issba_vs_ssl_aug_cifar10.png",
+    "overlap_metrics": {
+        "cosine_centroid_similarity": 0.9825490713119507,
+        "mean_cross_group_similarity": 0.2179894745349884,
+        "mean_within_trigger_similarity": 0.2343839854001999,
+        "mean_within_aug_similarity": 0.21000738441944122
+    }
+}

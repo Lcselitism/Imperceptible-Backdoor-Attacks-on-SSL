@@ -1,0 +1,108 @@
+# Proposed for the future FYP-final repository. Not installed in any repository.
+# Local model artifacts and raw data
+/artifacts/
+/data/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.bin
+
+# New runs, disposable replay metadata and accidental legacy default outputs
+/outputs/
+/results/generated/
+/results_*/
+/runs/
+/wandb/
+/lightning_logs/
+/tensorboard/
+events.out.tfevents.*
+
+# Machine-specific provenance remains in the complete local archive
+/docs/provenance/local/
+/environment/observed/local/
+
+# The unmodified chart scripts write beside themselves
+/src/plots/simclr_section4_4_asr_updated.png
+/src/plots/simclr_section4_4_asr_updated.svg
+/src/plots/moco_section4_5_asr.png
+/src/plots/moco_section4_5_asr.svg
+/src/plots/framework_comparison_section4_6.png
+/src/plots/framework_comparison_section4_6.svg
+
+# Python environments, caches, temporary files and editor state
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.idea/
+.vscode/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+Thumbs.db
+.DS_Store
+
+# Unnecessary packaged archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Keep configs/original, results/original, logs/original, figures/original,
+# source files and normal documentation eligible for Git tracking.
+
+# Keep private reports and experiment logs in the local archive only.
+/docs/reports/
+/docs/experiment_logs/
+
+# Original records with personal machine paths remain local-only.
+/figures/original/b4/final_trigger_comparison_20261024_162348/metadata.json
+/results/original/b4/results_eval_moco_c2_cifar10_to_cifar10/validation_asr/validation_asr_results.json
+/results/original/b4/results_eval_moco_c2_stl10_to_cifar10/validation_asr/validation_asr_results.json
+
+# Local environment secrets; retain deliberately named public examples.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
+!.env.*.sample
+!.env.*.template
+
+# Local credentials and private keys.
+.aws/
+.ssh/
+.netrc
+_netrc
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.ppk
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+credentials.json
+application_default_credentials.json

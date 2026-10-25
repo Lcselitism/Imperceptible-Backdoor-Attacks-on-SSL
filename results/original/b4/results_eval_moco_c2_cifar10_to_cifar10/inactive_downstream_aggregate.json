@@ -1,0 +1,480 @@
+{
+  "experiment": "ca3_inactive_cross_dataset_transfer_aggregate",
+  "protocol": {
+    "upstream_dataset": "CIFAR10",
+    "downstream_dataset": "CIFAR10",
+    "dataset": "CIFAR10",
+    "image_size": 32,
+    "target_label": 0,
+    "target_class_name": "airplane",
+    "feature_source": "encoder_q_backbone_pre_projection",
+    "projection_head_used": false,
+    "feature_l2_normalized": true,
+    "trigger_insertion_range": "[0, 1]",
+    "normalization_order": "downstream image -> resize to 32x32 if needed -> optional trigger -> CIFAR10 encoder normalization",
+    "message_pattern": "alternating",
+    "message_length": 16,
+    "maximum_residual": 0.03137254901960784,
+    "asr_excludes_original_target_class": true,
+    "adjusted_asr_definition": "max(0, ASR - baseline target rate)",
+    "classifier_architecture": "512 -> 512 -> 256 -> 10",
+    "classifier_selection": "best fixed-split downstream validation accuracy per repetition",
+    "global_experiment_seed": 42,
+    "num_repeats": 5,
+    "repeat_seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "data_split_seed": 53,
+    "pair_order_invariant_seed_rule": "pair classifier seeds depend on global seed, repetition index and repeat seed; pair name and command position are excluded",
+    "pair_classifier_fairness": "all pairs share initial weights, DataLoader order and dropout RNG within each repetition when architecture dimensions match"
+  },
+  "data_counts": {
+    "classifier_fit": 45000,
+    "classifier_validation": 5000,
+    "test": 10000,
+    "non_target_test": 9000,
+    "target_references": 1000
+  },
+  "clean_baseline": {
+    "clean_ssl_checkpoint": ".\\results_moco_cifar10\\moco_cifar10_ep1000.pth",
+    "checkpoint_extra": {
+      "stage": "clean_moco_pretraining",
+      "ssl_framework": "moco",
+      "moco_variant": "v1",
+      "implementation": "single_process_ca3_small_image",
+      "upstream_dataset": "cifar10",
+      "encoder_input_size": 32,
+      "normalization": {
+        "mean": [
+          0.4914,
+          0.4822,
+          0.4465
+        ],
+        "std": [
+          0.2023,
+          0.1994,
+          0.201
+        ]
+      },
+      "arch": "resnet18",
+      "query_encoder": "small_image_resnet18",
+      "key_encoder": "small_image_resnet18_ema",
+      "downstream_feature_source": "encoder_q_backbone_pre_projection",
+      "backbone_feature_dim": 512,
+      "projection_head": "linear",
+      "projection_dim": 128,
+      "queue_size": 65536,
+      "moco_momentum": 0.999,
+      "temperature": 0.07,
+      "optimizer": "SGD",
+      "lr": 0.03,
+      "sgd_momentum": 0.9,
+      "weight_decay": 0.0001,
+      "lr_milestones": [
+        600,
+        800
+      ],
+      "lr_gamma": 0.1,
+      "batch_size": 256,
+      "epochs": 1000,
+      "seed": 100,
+      "augmentation_profile": "ca3_matched",
+      "augmentation_pipeline": [
+        "RandomResizedCrop(32, scale=(0.08, 1.0))",
+        "RandomHorizontalFlip(p=0.5)",
+        "RandomApply(ColorJitter(0.4,0.4,0.4,0.1), p=0.8)",
+        "RandomGrayscale(p=0.2)",
+        "ToTensor()",
+        "Normalize(upstream_dataset)"
+      ],
+      "shuffle_bn": false,
+      "stl10_pretraining_split": null
+    }
+  },
+  "clean_baseline_aggregate": {
+    "ca_percent": {
+      "mean": 87.822,
+      "std_sample": 0.14956603892595208,
+      "minimum": 87.61,
+      "maximum": 88.02,
+      "per_seed": [
+        {
+          "repetition": 1,
+          "seed": 42,
+          "value": 88.02
+        },
+        {
+          "repetition": 2,
+          "seed": 43,
+          "value": 87.77000000000001
+        },
+        {
+          "repetition": 3,
+          "seed": 44,
+          "value": 87.83999999999999
+        },
+        {
+          "repetition": 4,
+          "seed": 45,
+          "value": 87.87
+        },
+        {
+          "repetition": 5,
+          "seed": 46,
+          "value": 87.61
+        }
+      ]
+    },
+    "clean_non_target_target_rate_percent": {
+      "mean": 1.3866666666666667,
+      "std_sample": 0.1528333232359947,
+      "minimum": 1.211111111111111,
+      "maximum": 1.6111111111111112,
+      "per_seed": [
+        {
+          "repetition": 1,
+          "seed": 42,
+          "value": 1.3444444444444446
+        },
+        {
+          "repetition": 2,
+          "seed": 43,
+          "value": 1.211111111111111
+        },
+        {
+          "repetition": 3,
+          "seed": 44,
+          "value": 1.4555555555555555
+        },
+        {
+          "repetition": 4,
+          "seed": 45,
+          "value": 1.3111111111111111
+        },
+        {
+          "repetition": 5,
+          "seed": 46,
+          "value": 1.6111111111111112
+        }
+      ]
+    }
+  },
+  "pairs": {
+    "moco_c2_cifar10_best": {
+      "pair_name": "moco_c2_cifar10_best",
+      "encoder_checkpoint": ".\\results_moco_inactive_alternating_c2_dualphase_cifar10\\checkpoints\\backdoored_moco_encoder_alternating_best.pth",
+      "trigger_checkpoint": ".\\results_moco_inactive_alternating_c2_dualphase_cifar10\\checkpoints\\stegastamp_inactive_alternating_best.pth",
+      "pair_metadata": {
+        "verified": true,
+        "encoder_stage": "inactive_alternating_c2_dualphase_encoder_export",
+        "trigger_stage": "inactive_alternating_c2_dualphase_trigger_export",
+        "encoder_epoch": 16,
+        "trigger_epoch": 16,
+        "saved_clean_feature_similarity": 0.9957551779747009,
+        "saved_reference_feature_similarity": 0.9911710257530213,
+        "upstream_dataset": "cifar10",
+        "warnings": []
+      },
+      "trigger_config": {
+        "message_length": 16,
+        "image_size": 32,
+        "message_map_size": 8,
+        "message_channels": 8,
+        "base_channels": 32,
+        "max_residual": 0.03137254901960784,
+        "use_spatial_transformer": true,
+        "use_corruption": true
+      },
+      "trigger_quality": {
+        "psnr_db": 37.620792670355904,
+        "ssim_index": 0.9881368984646267,
+        "mean_abs_residual": 0.008229789310031467,
+        "mean_abs_residual_255": 2.098596274058024,
+        "max_abs_residual": 0.031371116638183594,
+        "max_abs_residual_255": 7.999634742736816,
+        "residual_saturation_ratio": 0.05392787905092593,
+        "residual_bound_violation_ratio": 0.0,
+        "message_bit_accuracy": 0.9987708333333334,
+        "message_accuracy": 0.9888888888888889
+      },
+      "feature_cosine_diagnostics": {
+        "clean_feature_similarity_pair_vs_clean": 0.996681809425354,
+        "reference_feature_similarity_pair_vs_clean": 0.9967043995857239,
+        "pair_triggered_to_pair_target_centroid_cosine": 0.9939690828323364,
+        "pair_triggered_to_clean_target_centroid_cosine": 0.9932408928871155,
+        "pair_clean_non_target_to_pair_target_centroid_cosine": 0.5917326807975769,
+        "clean_triggered_to_clean_target_centroid_cosine": 0.5774666666984558,
+        "pair_triggered_vs_pair_clean_same_image_cosine": 0.6049841642379761
+      },
+      "metrics": {
+        "ca_percent": {
+          "mean": 87.822,
+          "std_sample": 0.14956603892595208,
+          "minimum": 87.61,
+          "maximum": 88.02,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 88.02
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 87.77000000000001
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 87.83999999999999
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 87.87
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 87.61
+            }
+          ]
+        },
+        "ba_percent": {
+          "mean": 87.86800000000001,
+          "std_sample": 0.12497999839974677,
+          "minimum": 87.75,
+          "maximum": 88.07000000000001,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 87.78
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 87.75
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 87.87
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 88.07000000000001
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 87.87
+            }
+          ]
+        },
+        "ca_to_ba_drop_pp": {
+          "mean": -0.046000000000001595,
+          "std_sample": 0.197433533119377,
+          "minimum": -0.26000000000000467,
+          "maximum": 0.23999999999999577,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 0.23999999999999577
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 0.0200000000000089
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": -0.030000000000007798
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": -0.20000000000000018
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": -0.26000000000000467
+            }
+          ]
+        },
+        "baseline_target_rate_percent": {
+          "mean": 1.3533333333333333,
+          "std_sample": 0.16337490022855822,
+          "minimum": 1.0666666666666667,
+          "maximum": 1.4666666666666666,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 1.4000000000000001
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 1.3888888888888888
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 1.4666666666666666
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 1.0666666666666667
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 1.4444444444444444
+            }
+          ]
+        },
+        "asr_percent": {
+          "mean": 60.76444444444445,
+          "std_sample": 35.41177473840385,
+          "minimum": 1.0222222222222224,
+          "maximum": 93.28888888888889,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 61.16666666666667
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 70.34444444444445
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 78.0
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 1.0222222222222224
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 93.28888888888889
+            }
+          ]
+        },
+        "adjusted_asr_percent": {
+          "mean": 59.42,
+          "std_sample": 35.23490518235967,
+          "minimum": 0.0,
+          "maximum": 91.84444444444443,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 59.766666666666666
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 68.95555555555556
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 76.53333333333333
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 0.0
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 91.84444444444443
+            }
+          ]
+        },
+        "sanity_asr_percent": {
+          "mean": 1.5266666666666666,
+          "std_sample": 0.19446031681249204,
+          "minimum": 1.3333333333333335,
+          "maximum": 1.7777777777777777,
+          "per_seed": [
+            {
+              "repetition": 1,
+              "seed": 42,
+              "value": 1.4777777777777779
+            },
+            {
+              "repetition": 2,
+              "seed": 43,
+              "value": 1.3333333333333335
+            },
+            {
+              "repetition": 3,
+              "seed": 44,
+              "value": 1.7777777777777777
+            },
+            {
+              "repetition": 4,
+              "seed": 45,
+              "value": 1.3666666666666667
+            },
+            {
+              "repetition": 5,
+              "seed": 46,
+              "value": 1.6777777777777776
+            }
+          ]
+        }
+      }
+    }
+  },
+  "decision": {
+    "thresholds": {
+      "maximum_mean_ca_to_ba_drop_percentage_points": 5.0,
+      "minimum_mean_raw_asr_percent": 90.0,
+      "minimum_mean_adjusted_asr_percent": 90.0
+    },
+    "pair_checks": {
+      "moco_c2_cifar10_best": {
+        "mean_ba_drop_within_limit": true,
+        "mean_raw_asr_meets_target": false,
+        "mean_adjusted_asr_meets_target": false,
+        "meets_all_mean_thresholds": false
+      }
+    },
+    "ranking": [
+      "moco_c2_cifar10_best"
+    ],
+    "provisional_best_pair": "moco_c2_cifar10_best",
+    "genuinely_better_pair": "moco_c2_cifar10_best",
+    "comparison_status": "only one pair passed the mean BA-drop limit",
+    "margin_details": null,
+    "pairs_meeting_all_mean_thresholds": [],
+    "selection_rule": "First require mean CA-to-BA drop within the configured limit. Rank surviving pairs by mean adjusted ASR, then lower adjusted-ASR sample standard deviation, then mean BA and mean raw ASR. Call the top pair genuinely better only when its mean adjusted-ASR lead exceeds the larger of the top two sample standard deviations. This is a practical stability heuristic, not a formal significance test.",
+    "recommendation": "A utility-safe pair is seed-stably strongest, but its transfer attack metrics are below the configured reference target. Record this as a transfer result; do not start a new attack-training stage solely because of this value."
+  },
+  "per_seed_json_files": [
+    "results_eval_moco_c2_cifar10_to_cifar10\\per_seed\\repeat_01_seed_42.json",
+    "results_eval_moco_c2_cifar10_to_cifar10\\per_seed\\repeat_02_seed_43.json",
+    "results_eval_moco_c2_cifar10_to_cifar10\\per_seed\\repeat_03_seed_44.json",
+    "results_eval_moco_c2_cifar10_to_cifar10\\per_seed\\repeat_04_seed_45.json",
+    "results_eval_moco_c2_cifar10_to_cifar10\\per_seed\\repeat_05_seed_46.json"
+  ]
+}
